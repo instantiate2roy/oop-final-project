@@ -1,0 +1,49 @@
+code,name,scope
+UNVERIFIED,Not yet confirmed,contact
+VERIFIED,Confirmed as belonging to the customer,contact
+WRONG_NUMBER,Reaches someone else,contact
+DISCONNECTED,Number not in service,contact
+BOUNCED,Email address rejects mail,contact
+DO_NOT_CONTACT,Customer asked not to be contacted here,contact
+UNVERIFIED,Not yet confirmed,address
+VERIFIED,Confirmed by a field visit,address
+MOVED,Customer no longer lives or works here,address
+NOT_FOUND,Field officer could not locate it,address
+RIGHT_PARTY_CONTACT,Spoke to the customer,contact_history
+THIRD_PARTY_CONTACT,Spoke to someone else who knows the customer,contact_history
+NO_ANSWER,Rang with no answer,contact_history
+BUSY,Line busy,contact_history
+SWITCHED_OFF,Phone switched off or out of coverage,contact_history
+WRONG_NUMBER,Answered by someone who does not know the customer,contact_history
+CALL_BACK,Asked to be called back later,contact_history
+REFUSED_TO_PAY,Customer refused to pay,contact_history
+PROMISED_TO_PAY,Customer made a promise to pay,contact_history
+SMS_SENT,SMS sent,contact_history
+SMS_DELIVERED,SMS delivered to the handset,contact_history
+SMS_FAILED,SMS could not be delivered,contact_history
+EMAIL_SENT,Email sent,contact_history
+EMAIL_BOUNCED,Email rejected by the recipient server,contact_history
+CURRENT,"Up to date, no arrears",case
+NEW,"In arrears, not yet worked",case
+IN_PROGRESS,Being worked by a collector,case
+PROMISE_ACTIVE,Waiting on a promise to pay,case
+ON_HOLD,"Paused for a dispute, illness or bereavement",case
+RESTRUCTURED,Loan terms renegotiated,case
+LEGAL,Referred for legal recovery,case
+SETTLED,Loan repaid in full,case
+WRITTEN_OFF,Balance written off as uncollectable,case
+CLOSED,No further action,case
+PENDING,Promise date not yet reached,ptp
+KEPT,Paid in full by the promise date,ptp
+PARTIALLY_KEPT,Paid part of the amount by the promise date,ptp
+BROKEN,Nothing paid by the promise date,ptp
+CANCELLED,Withdrawn or replaced by a new promise,ptp
+PENDING,"Initiated, awaiting confirmation",payment
+POSTED,Received and applied to the loan,payment
+FAILED,Not received,payment
+REVERSED,"Received, then reversed",payment
+PLEDGED,Held as security,security
+CALLED,Guarantor or savings called on to pay,security
+REPOSSESSED,Asset taken back,security
+SOLD,Asset sold to recover the debt,security
+RELEASED,Returned after the loan was repaid,security

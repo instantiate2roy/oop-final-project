@@ -1,0 +1,12 @@
+type_id,name
+EMAIL,email address
+WORK_EMAIL,work email address
+MOBILE_PHONE,mobile phone
+WHATSAPP,WhatsApp number
+HOME_PHONE,home phone
+WORK_PHONE,work phone
+FAX,fax machine
+SPOUSE_PHONE,spouse's phone
+NEXT_OF_KIN_PHONE,next of kin's phone
+GUARANTOR_PHONE,guarantor's phone
+REFEREE_PHONE,referee's phone

@@ -1,0 +1,10 @@
+uuid,code,name,purpose,min_term_months,max_term_months,repayment_frequency,repayment_pattern,typical_security
+57908f72-ea0b-47b4-ba49-e1a30fb7b875,business,Business or development loan,"Stock, trading capital, expanding a small business",6,24,monthly,equal instalments,"guarantors, savings"
+ff45e4a9-a0a4-4a6e-bd9b-c486cab10bee,agriculture,Agricultural loan,"Seeds, fertiliser, livestock or produce trading",3,12,seasonal,lump sum or balloon after harvest,"guarantors, savings"
+db4a50e0-1ad5-48b4-a377-1646bd6b03d4,school_fees,School fees loan,Paying school fees at the start of each term,3,4,monthly,equal instalments within the term,"guarantors, savings"
+9cde75b1-a20f-457b-b549-0b31310fcded,salary,Salary or check-off loan,"Salaried members, deducted by the employer",12,36,monthly,payroll deduction,employer check-off
+556d1e89-5218-4fe8-8ee3-cb99cd80fe55,emergency,Emergency loan,"Medical bills, funerals and other urgent needs",1,6,monthly,equal instalments,savings
+124bb028-1a4a-4bdf-bc81-27362c7bbd76,asset,Asset loan,"Motorcycles (boda boda), solar systems, household items",12,24,monthly or weekly,equal instalments,"the asset, guarantors"
+f7859746-db5b-4d6c-8162-72f46e4ec68a,housing,Housing or land loan,"Building, renovating or buying land",24,60,monthly,equal instalments,land title
+326dc216-b872-440f-a818-6b2ed2d537d5,savings_backed,Savings-backed loan,Borrowing against the member's own savings or shares,1,12,monthly,equal instalments,member's own savings or shares
+366ff020-9ae0-4ac2-bbfa-b2de661c4af9,group,Group loan,Lending to a group whose members guarantee each other,6,12,weekly or monthly,equal instalments,group members guarantee each other

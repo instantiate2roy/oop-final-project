@@ -1,0 +1,8 @@
+type_id,name
+GUARANTOR,member guarantor
+SAVINGS,member's savings
+SHARES,member's shares
+CHECK_OFF,employer check-off
+ASSET,financed asset
+LAND_TITLE,land title
+GROUP_GUARANTEE,group guarantee

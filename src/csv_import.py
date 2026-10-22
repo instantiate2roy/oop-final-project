@@ -52,6 +52,29 @@ class CsvImport:
 
         return [self.header, *self.rows] if include_header else list(self.rows)
 
+    def load_dir_data(self, folder: str | Path) -> dict[str, dict[str, list]]:
+        """
+        Load every CSV file in `folder` and its subfolders.
+        """
+        folder_path = Path(folder)
+        if not folder_path.is_dir():
+            raise ImportFileError(f"Folder not found: {folder_path.resolve()}")
+
+        csv_paths = sorted(folder_path.rglob("*.csv"))
+        if not csv_paths:
+            raise ImportFileError(f"No CSV files found in {folder_path.resolve()}")
+
+        data = {}
+        for path in csv_paths:
+            if path.stem in data:
+                raise ImportFileError(f"Two files in {folder_path.name} are both called {path.stem}.csv")
+            self.load(path)
+            data[path.stem] = {
+                "header": self.header,
+                "rows": self.records(),
+            }
+        return data
+
     def records(self) -> list[dict[str, str]]:
         """The data rows as dictionaries keyed by column name, e.g. {'code': 'business', ...}."""
         if self.path is None:

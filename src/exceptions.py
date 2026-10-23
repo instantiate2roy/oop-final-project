@@ -15,3 +15,11 @@ class PolicyError(SaccoError):
 
 class ModelError(SaccoError):
     """A risk model can't be trained, used or loaded, e.g. it hasn't been trained yet."""
+
+
+class NotificationError(SaccoError):
+    """A message can't be written, e.g. a channel with no message template or a case that isn't in the portfolio."""
+
+
+class ExportError(SaccoError):
+    """A report can't be exported, e.g. an unknown format or a folder that can't be written to."""

@@ -27,9 +27,9 @@ class ProfileRuleList(Display):
             "priority": str(rule["priority"]),
             "profile": rule["name"],
             "description": rule.get("description", ""),
-            "conditions": self.policy._describe(rule["conditions"]),
+            "conditions": self.policy.describe(rule["conditions"]),
         } for position, rule in enumerate(self.policy.profiles)]
-        rows.append({"order": len(rows), "priority": "default", "profile": self.policy.data["default_profile"],
+        rows.append({"order": len(rows), "priority": "default", "profile": self.policy.default_profile,
                      "description": "Anyone no rule matches", "conditions": "-"})
         return pd.DataFrame(rows)
 

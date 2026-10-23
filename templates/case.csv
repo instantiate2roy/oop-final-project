@@ -1,1 +1,0 @@
-uuid,customer_uuid,loan_type_uuid,account_no,disbursement_date,loan_amount,monthly_interest_rate,term_months,repayment_frequency,instalment_amount,total_payable,maturity_date,amount_paid,outstanding_balance,arrears_amount,dpd,mia,last_payment_date,last_payment_amount,next_due_date,account_status,status,closed_date

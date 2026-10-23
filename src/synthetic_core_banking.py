@@ -146,6 +146,15 @@ class Loan:
     def instalment(self) -> int:
         return self.due_amounts[0]
 
+    @property
+    def monthly_instalment(self) -> float:
+        """What the loan costs per month, whatever the repayment frequency; MIA divides arrears by this."""
+        return self.total / self.term
+
+    def mia(self, arrears: int) -> float:
+        """Months in arrears: a weekly loan 4 weeks behind is about 1 month behind, not 4."""
+        return round(arrears / self.monthly_instalment, 2)
+
     def settled_on(self) -> date | None:
         if not self._pay_cum or self._pay_cum[-1] < self.total:
             return None
@@ -652,7 +661,7 @@ class SyntheticCoreBanking:
             "instalment_amount": loan.instalment, "total_payable": loan.total,
             "maturity_date": loan.due_dates[-1].isoformat(), "amount_paid": loan.paid_by(as_of),
             "outstanding_balance": outstanding, "arrears_amount": arrears, "dpd": dpd,
-            "mia": round(arrears / loan.instalment, 2),
+            "mia": loan.mia(arrears),
             "last_payment_date": posted[-1][0].isoformat() if posted else "",
             "last_payment_amount": posted[-1][1] if posted else "",
             "next_due_date": upcoming[0].isoformat() if upcoming and account_status == "OPEN" else "",
@@ -680,7 +689,7 @@ class SyntheticCoreBanking:
             account_status, status = self._case_status(loan, dpd, outstanding, month_end)
             self.rows["case_snapshot"].append({
                 "case_uuid": loan.uuid, "snapshot_date": month_end.isoformat(), "dpd": dpd,
-                "mia": round(arrears / loan.instalment, 2), "arrears_amount": arrears,
+                "mia": loan.mia(arrears), "arrears_amount": arrears,
                 "outstanding_balance": outstanding, "account_status": account_status, "status": status})
             if account_status == "CLOSED":
                 break

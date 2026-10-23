@@ -64,6 +64,14 @@ class FeatureBuilder:
         frame["defaulted"] = (frame["future_worst_dpd"] >= self.default_dpd).astype(int)
         return frame
 
+    def portfolio_features(self) -> pd.DataFrame:
+        """Features for every open loan at every month-end, plus today's open loans, for reporting."""
+        snaps = self.snapshots[self.snapshots["account_status"] == "OPEN"].rename(columns={"snapshot_date": "observed_on"})
+        history = self._features_at(snaps[["case_uuid", "observed_on", "dpd", "mia", "arrears_amount",
+                                           "outstanding_balance"]])
+        today = self.current_features()
+        return pd.concat([history[history["observed_on"] < self.as_of], today], ignore_index=True)
+
     def current_features(self) -> pd.DataFrame:
         """Features for every loan open on the business date, using today's DPD and balances."""
         open_cases = self.cases[self.cases["account_status"] == "OPEN"].copy()

@@ -3,11 +3,11 @@ from datetime import date
 import pandas as pd
 
 from ..exceptions import DisplayError
-from .display import Display
 from .filters import ChoiceFilter, RangeFilter, TextFilter
+from .history_list import HistoryList
 
 
-class TreatmentHistory(Display):
+class TreatmentHistory(HistoryList):
     """
     Every collection treatment started on a case, newest first.
 
@@ -20,18 +20,16 @@ class TreatmentHistory(Display):
                "dpd_at_start", "arrears_at_start", "assigned_to", "status"]
     sort_by = ["start_date", "account_no"]
     sort_ascending = [False, True]
-    MISSING_CUSTOMER = "(customer not found)"
+    noun = "treatments"
 
     def __init__(self, treatment_rows: list[dict], case_rows: list[dict], customer_rows: list[dict],
                  list_page_size: int = 50, filter_cols_per_row: int = 3,
                  treatment_type_rows: list[dict] | None = None, as_of: date | None = None):
         self.treatment_rows = treatment_rows
-        self.case_rows = case_rows
-        self.customer_rows = customer_rows
         # optional lookup of treatment names, e.g. SMS -> "SMS reminders"; without it the code is shown
         self.treatment_type_rows = treatment_type_rows or []
         self.as_of = as_of or date.today()
-        super().__init__(list_page_size, filter_cols_per_row)
+        super().__init__(case_rows, customer_rows, list_page_size, filter_cols_per_row)
 
     def build_frame(self) -> pd.DataFrame:
         treatments = pd.DataFrame(self.treatment_rows)
@@ -55,20 +53,7 @@ class TreatmentHistory(Display):
         if self.treatment_type_rows:
             names = {row["type_id"]: row["name"] for row in self.treatment_type_rows}
             treatments["treatment"] = treatments["treatment_type_id"].map(names).fillna(treatments["treatment_type_id"])
-
-        # account number and customer name, through the case
-        cases = pd.DataFrame(self.case_rows)[["uuid", "account_no", "customer_uuid"]]
-        treatments = treatments.merge(cases, how="left", left_on="case_uuid", right_on="uuid", suffixes=("", "_case"))
-        if treatments["account_no"].isna().any():
-            raise DisplayError(f"{treatments['account_no'].isna().sum()} treatments refer to cases that don't exist")
-
-        customers = pd.DataFrame(self.customer_rows)
-        names = (customers["surname"] + " " + customers["given_name"]).rename("customer")
-        treatments = treatments.merge(pd.concat([customers["uuid"], names], axis=1), how="left",
-                                      left_on="customer_uuid", right_on="uuid", suffixes=("", "_customer"))
-        # keep rows whose customer is missing from customer.csv, and make them easy to spot
-        treatments["customer"] = treatments["customer"].fillna(self.MISSING_CUSTOMER)
-        return treatments
+        return self.add_account_and_customer(treatments)
 
     def build_filters(self):
         return [

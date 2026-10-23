@@ -14,6 +14,14 @@
     ]
   },
 
+  "risk_tiers": [
+    { "name": "A", "max_pd": 0.01, "description": "Very low risk" },
+    { "name": "B", "max_pd": 0.03, "description": "Low risk" },
+    { "name": "C", "max_pd": 0.10, "description": "Moderate risk" },
+    { "name": "D", "max_pd": 0.50, "description": "High risk" },
+    { "name": "E", "max_pd": null, "description": "Very high risk" }
+  ],
+
   "profiles": [
     {
       "name": "high_risk_unreachable",

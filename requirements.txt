@@ -1,0 +1,18 @@
+# Python 3.10 or newer (the code uses `X | None` type hints).
+# Tested with the versions in the comments.
+
+# data and modelling
+numpy>=1.26             # 2.2.6
+pandas>=2.2             # 2.3.3  (groupby.apply(include_groups=...) needs 2.2)
+scikit-learn>=1.4       # 1.7.2
+joblib>=1.3             # 1.6.0  (saving and loading the PD model)
+
+# notebook: lists, charts and the dashboard
+matplotlib>=3.8         # 3.10.9
+ipywidgets>=8.1         # 8.1.9
+ipython>=8.0            # 8.39.0
+jinja2>=3.1             # 3.1.6  (pandas DataFrame.style)
+jupyterlab>=4.0         # or open sacco.ipynb in VS Code with ipykernel
+
+# tests
+pytest>=8.0             # 9.1.1

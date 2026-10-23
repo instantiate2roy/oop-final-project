@@ -1,5 +1,6 @@
 import pandas as pd
 
+from ..customers import MISSING_CUSTOMER, add_customer_names
 from .display import Display
 from .filters import ChoiceFilter, RangeFilter, TextFilter
 
@@ -12,6 +13,8 @@ class CaseList(Display):
                "outstanding_balance", "arrears_amount", "next_due_date"]
     sort_by = ["dpd",'outstanding_balance', "account_no"]
     sort_ascending = [False, False, True]
+    MISSING_CUSTOMER = MISSING_CUSTOMER
+    MISSING_LOAN_TYPE = "(loan type not found)"
 
     def __init__(self, case_rows: list[dict], customer_rows: list[dict], loan_type_rows: list[dict], list_page_size:int = 50, filter_cols_per_row:int = 3):
         self.case_rows = case_rows
@@ -25,14 +28,13 @@ class CaseList(Display):
             cases[column] = pd.to_numeric(cases[column]).astype(int)
         cases["mia"] = pd.to_numeric(cases["mia"])
 
-        customers = pd.DataFrame(self.customer_rows)
-        names = (customers["surname"] + " " + customers["given_name"]).rename("customer")
-        cases = cases.merge(pd.concat([customers["uuid"], names], axis=1),
-                            left_on="customer_uuid", right_on="uuid", suffixes=("", "_customer"))
+        cases = add_customer_names(cases, self.customer_rows, self.MISSING_CUSTOMER)
 
         loan_types = pd.DataFrame(self.loan_type_rows)[["uuid", "name"]].rename(columns={"name": "loan_type"})
-        cases = cases.merge(loan_types, left_on="loan_type_uuid", right_on="uuid", suffixes=("", "_loan_type"))
-        return cases
+        cases = cases.merge(loan_types, how="left", left_on="loan_type_uuid", right_on="uuid",
+                            suffixes=("", "_loan_type"))
+        # keep cases whose loan type is missing, and make them easy to spot
+        return cases.fillna({"loan_type": self.MISSING_LOAN_TYPE})
 
     def build_filters(self):
         return [

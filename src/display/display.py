@@ -52,7 +52,9 @@ class Display(ABC):
             widget.layout.width = f.width
             widget.observe(self._on_filter_change, names="value")
         self._count = widgets.HTML()
-        self._output = widgets.Output()
+        # the table is HTML held in a widget, not display() calls captured by an Output widget:
+        # how Output captures depends on the frontend, and VS Code can show the captured table twice
+        self._table = widgets.HTML(layout=widgets.Layout(overflow="auto"))
 
         # one set of paging controls above the table and one below
         self._top_pager = self._make_pager()
@@ -157,7 +159,7 @@ class Display(ABC):
         display(widgets.VBox([
             panel,
             self._pager_row(self._top_pager, margin="0 0 8px 0"),
-            self._output,
+            self._table,
             self._pager_row(self._bottom_pager, margin="8px 0 0 0"),
         ]))
         self._refresh()
@@ -181,9 +183,7 @@ class Display(ABC):
             pager["first"].disabled = pager["previous"].disabled = on_first
             pager["next"].disabled = pager["last"].disabled = on_last
 
-        with self._output:
-            self._output.clear_output()
-            display(self._styled(page_rows))
+        self._table.value = self._styled(page_rows).to_html()
 
     def _on_filter_change(self, *_):
         # a new search starts again from the first page

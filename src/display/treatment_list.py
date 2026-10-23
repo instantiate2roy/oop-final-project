@@ -25,7 +25,7 @@ class TreatmentList(Display):
         super().__init__(list_page_size, filter_cols_per_row)
 
     def build_frame(self) -> pd.DataFrame:
-        fallbacks = self.policy.data.get("fallback_treatments", {})
+        fallbacks = self.policy.fallback_treatments
         rows = []
         for profile_order, rule in enumerate(self.policy.profiles):
             for bucket_order, bucket in enumerate(self.policy.buckets):

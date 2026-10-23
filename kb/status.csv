@@ -47,3 +47,7 @@ CALLED,Guarantor or savings called on to pay,security
 REPOSSESSED,Asset taken back,security
 SOLD,Asset sold to recover the debt,security
 RELEASED,Returned after the loan was repaid,security
+ACTIVE,Still running,treatment
+COMPLETED,Arrears cleared,treatment
+ESCALATED,Handed over to a stronger treatment,treatment
+STOPPED,Loan closed or written off,treatment

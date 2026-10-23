@@ -1,0 +1,6 @@
+type_id,name
+SMS,SMS reminders
+CALL,collector calls
+EMAIL,email notices
+DCA,debt collection agency
+LEGAL,legal recovery

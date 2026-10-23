@@ -1,0 +1,5 @@
+type_id,name
+SALARIED,salaried employee
+SELF_EMPLOYED,self-employed or business owner
+FARMER,farmer
+CASUAL,casual worker

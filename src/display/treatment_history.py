@@ -3,11 +3,11 @@ from datetime import date
 import pandas as pd
 
 from ..exceptions import DisplayError
-from .case_history import CaseHistory
+from .display import Display
 from .filters import ChoiceFilter, RangeFilter, TextFilter
 
 
-class TreatmentHistory(CaseHistory):
+class TreatmentHistory(Display):
     """
     Every collection treatment started on a case, newest first.
 
@@ -20,37 +20,55 @@ class TreatmentHistory(CaseHistory):
                "dpd_at_start", "arrears_at_start", "assigned_to", "status"]
     sort_by = ["start_date", "account_no"]
     sort_ascending = [False, True]
+    MISSING_CUSTOMER = "(customer not found)"
 
-    def __init__(self, history_rows: list[dict], case_rows: list[dict], customer_rows: list[dict],
-                 as_of: date | None = None, treatment_type_rows: list[dict] | None = None,
-                 list_page_size: int = 50, filter_cols_per_row: int = 3):
-        self.as_of = as_of or date.today()
-        # optional lookup of treatment names, e.g. SMS -> "SMS reminder"; without it the code is shown
+    def __init__(self, treatment_rows: list[dict], case_rows: list[dict], customer_rows: list[dict],
+                 list_page_size: int = 50, filter_cols_per_row: int = 3,
+                 treatment_type_rows: list[dict] | None = None, as_of: date | None = None):
+        self.treatment_rows = treatment_rows
+        self.case_rows = case_rows
+        self.customer_rows = customer_rows
+        # optional lookup of treatment names, e.g. SMS -> "SMS reminders"; without it the code is shown
         self.treatment_type_rows = treatment_type_rows or []
-        super().__init__(history_rows, case_rows, customer_rows, list_page_size, filter_cols_per_row)
+        self.as_of = as_of or date.today()
+        super().__init__(list_page_size, filter_cols_per_row)
 
-    def prepare_history(self, history: pd.DataFrame) -> pd.DataFrame:
-        history["dpd_at_start"] = pd.to_numeric(history["dpd_at_start"]).astype(int)
-        history["arrears_at_start"] = pd.to_numeric(history["arrears_at_start"]).astype(int)
+    def build_frame(self) -> pd.DataFrame:
+        treatments = pd.DataFrame(self.treatment_rows)
+        treatments["dpd_at_start"] = pd.to_numeric(treatments["dpd_at_start"]).astype(int)
+        treatments["arrears_at_start"] = pd.to_numeric(treatments["arrears_at_start"]).astype(int)
 
-        start = pd.to_datetime(history["start_date"])
-        end = pd.to_datetime(history["end_date"].replace("", None))
-        finished_before_start = end < start
-        if finished_before_start.any():
-            first = history.loc[finished_before_start, "uuid"].iloc[0]
-            raise DisplayError(f"{finished_before_start.sum()} treatments end before they start, e.g. {first}")
+        start = pd.to_datetime(treatments["start_date"])
+        end = pd.to_datetime(treatments["end_date"].replace("", None))
+        ends_too_early = end < start
+        if ends_too_early.any():
+            first = treatments.loc[ends_too_early, "uuid"].iloc[0]
+            raise DisplayError(f"{ends_too_early.sum()} treatments end before they start, e.g. {first}")
 
         # still-running treatments are counted up to the business date
-        history["days"] = (end.fillna(pd.Timestamp(self.as_of)) - start).dt.days.astype(int)
-        history["end_date"] = history["end_date"].replace("", "running")
+        treatments["days"] = (end.fillna(pd.Timestamp(self.as_of)) - start).dt.days.astype(int)
+        treatments["end_date"] = treatments["end_date"].replace("", "running")
+        treatments["assigned_to"] = treatments["assigned_to"].replace("", "unassigned")
+        treatments["month"] = start.dt.strftime("%Y-%m")
 
-        history["treatment"] = history["treatment_type_id"]
+        treatments["treatment"] = treatments["treatment_type_id"]
         if self.treatment_type_rows:
             names = {row["type_id"]: row["name"] for row in self.treatment_type_rows}
-            history["treatment"] = history["treatment_type_id"].map(names).fillna(history["treatment_type_id"])
+            treatments["treatment"] = treatments["treatment_type_id"].map(names).fillna(treatments["treatment_type_id"])
 
-        history["assigned_to"] = history["assigned_to"].replace("", "unassigned")
-        return self.add_month(history, "start_date")
+        # account number and customer name, through the case
+        cases = pd.DataFrame(self.case_rows)[["uuid", "account_no", "customer_uuid"]]
+        treatments = treatments.merge(cases, how="left", left_on="case_uuid", right_on="uuid", suffixes=("", "_case"))
+        if treatments["account_no"].isna().any():
+            raise DisplayError(f"{treatments['account_no'].isna().sum()} treatments refer to cases that don't exist")
+
+        customers = pd.DataFrame(self.customer_rows)
+        names = (customers["surname"] + " " + customers["given_name"]).rename("customer")
+        treatments = treatments.merge(pd.concat([customers["uuid"], names], axis=1), how="left",
+                                      left_on="customer_uuid", right_on="uuid", suffixes=("", "_customer"))
+        # keep rows whose customer is missing from customer.csv, and make them easy to spot
+        treatments["customer"] = treatments["customer"].fillna(self.MISSING_CUSTOMER)
+        return treatments
 
     def build_filters(self):
         return [

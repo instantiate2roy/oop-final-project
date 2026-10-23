@@ -1,0 +1,78 @@
+{
+  "name": "SACCO collections policy",
+  "version": "1.0",
+  "effective_from": "2026-10-01",
+
+  "buckets": {
+    "measure": "dpd",
+    "edges": [
+      { "name": "current", "lower": 0,  "upper": 0 },
+      { "name": "1-30",    "lower": 1,  "upper": 30 },
+      { "name": "31-60",   "lower": 31, "upper": 60 },
+      { "name": "61-90",   "lower": 61, "upper": 90 },
+      { "name": "90+",     "lower": 91, "upper": null }
+    ]
+  },
+
+  "profiles": [
+    {
+      "name": "high_risk_unreachable",
+      "priority": 1,
+      "description": "Seriously overdue and rarely answers",
+      "conditions": { "bucket": { "in": ["61-90", "90+"] }, "reachability": { "max": 0.3 } }
+    },
+    {
+      "name": "high_risk",
+      "priority": 2,
+      "description": "Seriously overdue",
+      "conditions": { "bucket": { "in": ["61-90", "90+"] } }
+    },
+    {
+      "name": "broken_promises",
+      "priority": 3,
+      "description": "Has broken two or more promises to pay",
+      "conditions": { "bucket": { "in": ["1-30", "31-60"] }, "broken_ptps": { "min": 2 } }
+    },
+    {
+      "name": "medium_risk_large_balance",
+      "priority": 4,
+      "description": "One to two months overdue with most of the loan still owed",
+      "conditions": { "bucket": { "in": ["31-60"] }, "outstanding_ratio": { "min": 0.5 } }
+    },
+    {
+      "name": "medium_risk",
+      "priority": 5,
+      "description": "One to two months overdue",
+      "conditions": { "bucket": { "in": ["31-60"] } }
+    },
+    {
+      "name": "low_risk",
+      "priority": 6,
+      "description": "Recently overdue",
+      "conditions": { "bucket": { "in": ["1-30"] } }
+    }
+  ],
+  "default_profile": "current",
+
+  "treatment_matrix": {
+    "low_risk":                  { "1-30": "SMS" },
+    "medium_risk":               { "31-60": "SMS" },
+    "medium_risk_large_balance": { "31-60": "CALL" },
+    "broken_promises":           { "1-30": "CALL", "31-60": "CALL" },
+    "high_risk":                 { "61-90": "CALL", "90+": "DCA" },
+    "high_risk_unreachable":     { "61-90": "DCA", "90+": "LEGAL" }
+  },
+  "fallback_treatments": { "SMS": "EMAIL", "CALL": "SMS" },
+
+  "compliance": {
+    "contact_hours": { "start": "08:00", "end": "18:00", "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
+    "max_contacts_per_day": 2,
+    "hold_while_ptp_pending": true,
+    "do_not_treat_case_statuses": ["SETTLED", "WRITTEN_OFF", "CLOSED", "ON_HOLD"],
+    "channels": {
+      "SMS":   { "max_per_day": 1, "max_per_week": 3, "min_gap_hours": 24 },
+      "EMAIL": { "max_per_day": 1, "max_per_week": 2, "min_gap_hours": 48 },
+      "CALL":  { "max_per_day": 2, "max_per_week": 6, "min_gap_hours": 4 }
+    }
+  }
+}
